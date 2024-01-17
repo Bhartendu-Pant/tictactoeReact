@@ -1,9 +1,14 @@
-import React, { useState} from 'react';
+import React, { useState,useRef,useEffect } from 'react';
 import '../styles/TicTacToe.css';
 import Popup from '../components/Popup';
+import { useNavigate } from 'react-router-dom';
 
 const TicTacToe = (props) => {
-  
+
+
+
+
+  const navigate=useNavigate();
   const userSymbol = props.userSymbol;
   const pcSymbol = userSymbol === 'X' ? 'O' : 'X';
   const [currentPlayer, setCurrentPlayer] = useState(userSymbol);
@@ -13,8 +18,70 @@ const TicTacToe = (props) => {
     ['', '', ''],
   ]);
 
+  const userScoreRef = useRef(0);
+  const pcScoreRef = useRef(0);
+  const tiesScoreRef = useRef(0);
+  useEffect(() => {
+    // Initialize scores from localStorage or use default values (0)
+    userScoreRef.current = parseInt(localStorage.getItem('userScore')) || 0;
+    pcScoreRef.current = parseInt(localStorage.getItem('pcScore')) || 0;
+    tiesScoreRef.current = parseInt(localStorage.getItem('tiesScore')) || 0;
+  }, []);
+  
 
- 
+  const [showRefreshPopup, setShowRefreshPopup] = useState(false);
+
+  const handleRefreshClick = () => {
+    setShowRefreshPopup(true);
+  };
+
+  const handlePlayAgainClick = () => {
+    localStorage.removeItem('userScore');
+    localStorage.removeItem('pcScore');
+    localStorage.removeItem('tiesScore');
+  
+    
+    setBoard([
+      ['', '', ''],
+      ['', '', ''],
+      ['', '', ''],
+    ]);
+    setCurrentPlayer(userSymbol);
+    setShowRefreshPopup(false);
+  
+    userScoreRef.current = 0;
+    pcScoreRef.current = 0;
+    tiesScoreRef.current = 0;
+  };
+
+  const handleQuitClick = () => {
+    localStorage.removeItem('userScore');
+    localStorage.removeItem('pcScore');
+    localStorage.removeItem('tiesScore');
+    setShowRefreshPopup(false);
+    navigate('/');
+  };
+
+  const renderRefreshPopup = () => {
+    if (showRefreshPopup) {
+      return (
+        <div className='overlay'>
+          <div className='popup'>
+            <div className='popup-refresh-heading'>Do you want to quit?</div>
+            <div className='popup-buttons-refresh'>
+              <button className='play-again-btn-refresh' onClick={handlePlayAgainClick}>
+                Play Again
+              </button>
+              <button className='quit-btn-refresh' onClick={handleQuitClick}>
+                Quit
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+
   const renderBoard = () => {
     return board.map((row, rowIndex) => (
       <div key={rowIndex} className='row'>
@@ -106,10 +173,17 @@ const TicTacToe = (props) => {
 
     if (checkForWinner(board, userSymbol)) {
       winner = 'user';
-     
+
+      
+
     } else if (checkForWinner(board, pcSymbol)) {
       winner = 'pc';
       
+
+    } else if (getAvailableCells().length === 0) {
+      // It's a tie
+      
+
     }
 
     if (winner || getAvailableCells().length === 0) {
@@ -117,17 +191,17 @@ const TicTacToe = (props) => {
       return (
         <div className='overlay'>
           <div className='popup'>
-          <Popup
-          winner={winner}
-          userSymbol={userSymbol}
-          pcSymbol={pcSymbol}
-          onNewRound={() => handleNewRound()}
-          onQuit={() => handleQuit()}
-        />
+            <Popup
+              winner={winner}
+              userSymbol={userSymbol}
+              pcSymbol={pcSymbol}
+              onNewRound={() => handleNewRound()}
+              onQuit={() => handleQuit()}
+            />
           </div>
         </div>
       );
-    }
+    }else return null;
   };
 
   const handleCellClick = (row, col) => {
@@ -137,6 +211,7 @@ const TicTacToe = (props) => {
       setBoard(newBoard);
 
       if (checkForWinner(newBoard, userSymbol)) {
+        handleScoreUpdate('user');
         declareWinnerOrTie();
         return;
       }
@@ -147,12 +222,13 @@ const TicTacToe = (props) => {
         makeComputerMove();
       }, 2000);
     }
-    
+
   };
 
   const makeComputerMove = () => {
     const availableCells = getAvailableCells();
     if (availableCells.length === 0) {
+      handleScoreUpdate('tie');
       declareWinnerOrTie();
       return;
     }
@@ -185,11 +261,26 @@ const TicTacToe = (props) => {
     }
 
     if (checkForWinner(board, pcSymbol)) {
+      handleScoreUpdate('pc');
       declareWinnerOrTie();
       return;
     }
 
     setCurrentPlayer(userSymbol);
+  };
+
+  const handleScoreUpdate = (winner) => {
+    if (winner === 'user') {
+      userScoreRef.current += 1;
+    } else if (winner === 'pc') {
+      pcScoreRef.current += 1;
+    } else if (winner === 'tie') {
+      tiesScoreRef.current += 1;
+    }
+
+    localStorage.setItem('userScore', userScoreRef.current);
+    localStorage.setItem('pcScore', pcScoreRef.current);
+    localStorage.setItem('tiesScore', tiesScoreRef.current);
   };
 
   const getAvailableCells = () => {
@@ -214,20 +305,23 @@ const TicTacToe = (props) => {
   };
 
   const handleQuit = () => {
-    
+    localStorage.removeItem('userScore');
+    localStorage.removeItem('pcScore');
+    localStorage.removeItem('tiesScore');
+    navigate('/');
   };
 
   const renderBottomBar = () => {
-      return (
-        <div className='render-bottom-bar' style={{ visibility: 'visible' }}>
-          <div className='user-symbol'><p>{`${userSymbol} (YOU) `}</p> <p></p></div>
-          <div className='ties'> <p>TIES</p> <p></p></div>
-          <div className='pc-symbol'><p>{`${pcSymbol} (CPU)`}</p> <p></p></div>
-        </div>
-      );
-    }
-    
-  
+    return (
+      <div className='render-bottom-bar' style={{ visibility: 'visible' }}>
+        <div className='user-symbol'><p>{`${userSymbol} (YOU) `}</p> <p>{userScoreRef.current}</p></div>
+        <div className='ties'> <p>TIES</p> <p>{tiesScoreRef.current}</p></div>
+        <div className='pc-symbol'><p>{`${pcSymbol} (CPU)`}</p> <p>{pcScoreRef.current}</p></div>
+      </div>
+    );
+  }
+
+
 
   return (
     <div className='tic-tac-toe'>
@@ -242,7 +336,7 @@ const TicTacToe = (props) => {
         </div>
 
         <div className='turn-indicator'><span className='diff-style'>{currentPlayer}</span> <span className='turn'>TURN</span></div>
-        <div className='refresh-button' style={{ visibility: '' }}>
+        <div className='refresh-button' style={{ visibility: '' }} onClick={handleRefreshClick}>
           <button className='refresh-btn'>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <g clipPath="url(#clip0_15_259)">
@@ -263,8 +357,11 @@ const TicTacToe = (props) => {
 
       {renderBottomBar()}
       {declareWinnerOrTie()}
+      {renderRefreshPopup()}
     </div>
   )
 }
 
 export default TicTacToe
+
+

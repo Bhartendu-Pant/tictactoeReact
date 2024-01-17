@@ -190,14 +190,14 @@
     justify-content: center;
     gap: 2rem;
 
-margin-right:1.2rem;
+    margin-right: 1.2rem;
 
     color: #1E1E1E;
-font-family: DM Sans;
-font-size: 10px;
-font-style: normal;
-font-weight: 600;
-line-height: normal;
+    font-family: DM Sans;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
 }
 
 .user-symbol {
@@ -234,4 +234,57 @@ line-height: normal;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+}
+
+.popup-refresh-heading {
+    color: #F2B237;
+    text-align: center;
+    font-family: DM Sans;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+}
+
+.popup-buttons-refresh {
+    display: flex;
+    justify-content: space-between;
+}
+
+.play-again-btn-refresh {
+    width: 113px;
+    height: 33px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #31C4BE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #192A32;
+    font-family: DM Sans;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    cursor: pointer;
+
+}
+
+.quit-btn-refresh {
+    width: 113px;
+    height: 33px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: #F2B237;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    color: #192A32;
+    font-family: DM Sans;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
 }
