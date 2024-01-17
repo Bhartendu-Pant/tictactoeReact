@@ -16,7 +16,7 @@ const UserSymbolChoice = (props) => {
     const oFillColor = isOactive ? '#192A32' : '#FAFAFA';
 
     const handleInviteFriend=()=>{
-        copy('google.com')
+        copy('https://tictactoe-react-bp.vercel.app/')
         toast.success('Invite link copied')
     }
     const handleSymbolX = (symbol) => {
